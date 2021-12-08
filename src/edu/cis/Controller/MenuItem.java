@@ -17,9 +17,9 @@ public class MenuItem {
         this.id = id;
         this.type = type;
         this.amountAvailable = 10;
-
     }
-    public MenuItem(){
+
+    public MenuItem() {
         name = "name";
         description = "description";
         price = 5.0;
@@ -76,7 +76,6 @@ public class MenuItem {
     }
     // getter and setter  -end
 
-    //to string
     @Override
     public String toString() {
         return "MenuItem{" +
@@ -87,6 +86,15 @@ public class MenuItem {
                 ", amountAvailable=" + amountAvailable +
                 ", type='" + type + '\'' +
                 '}';
+    }
+//
+//    public String toString2() {
+//        return name + "|" + description + "|" + price + "|" + id + "|" + amountAvailable + "|" + type + ";" ;
+//    }
+
+    public String sealFields() {
+        String[] pieces = {name, description, String.valueOf(price), String.valueOf(amountAvailable), type, id};
+        return String.join("|", pieces);
     }
 
 }

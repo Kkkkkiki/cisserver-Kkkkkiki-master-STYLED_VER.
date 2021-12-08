@@ -6,7 +6,9 @@
  */
 
 package edu.cis.Controller;
+
 import acm.program.*;
+
 import java.util.*;
 
 import edu.cis.Model.CISConstants;
@@ -67,6 +69,25 @@ public class CIServer extends ConsoleProgram
         return item.toString();
     }
 
+    //return the whole menu
+    private String getMenu(Request req) {
+        ArrayList<MenuItem> items = menu.getEatriumItems();
+        String[] menuStrings = new String[items.size()];
+        System.out.println("before loop");
+        for (int i = 0; i < items.size(); i++) {
+            menuStrings[i] = items.get(i).sealFields();
+        }
+        System.out.println("after loop");
+        String send = String.join(";", menuStrings);
+        System.out.println(send);
+        return send;
+
+        //the reason why we don't put "return" in the for loop is because for loop is filled with small parts
+        //and we integrate them outside together.
+    }
+
+
+
     //a function to create user
     private CISUser createUser(String userID, String name, String yearLevel) {
         CISUser currUser = null;
@@ -90,8 +111,8 @@ public class CIServer extends ConsoleProgram
             return CISConstants.PARAM_MISSING_ERR;
         }
 
-        for (CISUser user: users){
-            if(user.getUserID().equals(userID)){
+        for (CISUser user : users) {
+            if (user.getUserID().equals(userID)) {
                 Order findOrder = user.getOrderById(orderID);
                 if (findOrder != null) {
                     orderSerialized = findOrder.toString();
@@ -106,9 +127,8 @@ public class CIServer extends ConsoleProgram
         ArrayList<Order> cart = new ArrayList<>();
         String userID = req.getParam(CISConstants.USER_ID_PARAM);
 
-        for(CISUser user : users){
-            if(user.getUserID().equals(userID))
-            {
+        for (CISUser user : users) {
+            if (user.getUserID().equals(userID)) {
                 return user.getOrders().toString();
             }
         }
@@ -117,10 +137,18 @@ public class CIServer extends ConsoleProgram
 //end of functions
 
     public String requestMade(Request request) {
+        // your code here.
         String cmd = request.getCommand();
         println(request.toString());
+        System.out.println("REQUEST MADE : " + cmd);
 
-        // your code here.
+        //These are for testings
+        MenuItem hamburger = new MenuItem("Hamburger", "tasty" ,"10", "abcd0","lunch"  );
+        MenuItem frenchFries = new MenuItem("french fries", "tasty" ,"9", "efgh1","breakfast");
+        menu.setEatriumItems(hamburger);
+        menu.setEatriumItems(frenchFries);
+
+        //ping the server
         if (request.getCommand().equals(CISConstants.PING)) {
             final String PING_MSG = "Hello, internet";
             //println is used instead of System.out.println to print to the server GUI
@@ -133,7 +161,7 @@ public class CIServer extends ConsoleProgram
         String yearLevel = request.getParam(CISConstants.YEAR_LEVEL_PARAM);
 
         //create user if user doesn't exist, 🙆‍
-        if (request.getCommand().equals("createUser")) {
+        if (cmd.equals(CISConstants.CREATE_USER)) {
             userID = request.getParam(CISConstants.USER_ID_PARAM);
             yearLevel = request.getParam(CISConstants.YEAR_LEVEL_PARAM);
             name = request.getParam(CISConstants.USER_NAME_PARAM);
@@ -141,13 +169,13 @@ public class CIServer extends ConsoleProgram
             CISUser user = getUser(userID);
             if (user == null) {
                 user = createUser(userID, name, yearLevel);
+                println(user);
             }
-
             return CISConstants.SUCCESS;
         }
 
         //add menu item, 🙆‍
-        if (request.getCommand().equals("addMenuItem")) {
+        if (request.getCommand().equals(CISConstants.ADD_MENU_ITEM)) {
             String itemName = request.getParam(CISConstants.ITEM_NAME_PARAM);
             String description = request.getParam(CISConstants.DESC_PARAM);
             String price = request.getParam(CISConstants.PRICE_PARAM);
@@ -156,15 +184,14 @@ public class CIServer extends ConsoleProgram
 
             if (itemName == null || description == null || price == null || itemType == null || itemID == null) {
                 return CISConstants.PARAM_MISSING_ERR;
-            }
-            else {
+            } else {
                 MenuItem currMenu = new MenuItem(itemName, description, price, itemID, itemType);
                 menu.setEatriumItems(currMenu);
                 return CISConstants.SUCCESS;
             }
         }
 
-        // place invalid orders ❌
+        // place invalid orders 🙆‍
         try {
             if (request.getCommand().equals("placeOrder")) {
                 String orderID = request.getParam(CISConstants.ORDER_ID_PARAM);
@@ -191,10 +218,10 @@ public class CIServer extends ConsoleProgram
                 //does the order uses the same id for a different person
                 for (CISUser user : users) {
                     if (user.getUserID().equals(userID)) {
-                        System.out.println( orderID.toString() );
+                        System.out.println(orderID.toString());
                         Order orderCheck = user.getOrderById(orderID); //getting the order
                         if (orderCheck != null) {
-                            System.out.println("Found an orderID! "+ orderCheck.getOrderID() );
+                            System.out.println("Found an orderID! " + orderCheck.getOrderID());
                             return CISConstants.DUP_ORDER_ERR;
                         }
                     }
@@ -240,14 +267,12 @@ public class CIServer extends ConsoleProgram
                     return CISConstants.SUCCESS;
                 }
             }
-        }
-
-        catch (Exception err) {
+        } catch (Exception err) {
             err.printStackTrace();
             println("server error caught " + err.toString());
         }
 
-//    delete order, 🙆‍
+        //delete order, 🙆‍
         if (request.getCommand().equals(CISConstants.DELETE_ORDER)) {
             userID = request.getParam(CISConstants.USER_ID_PARAM);
             String orderID = request.getParam(CISConstants.ORDER_ID_PARAM);
@@ -260,20 +285,23 @@ public class CIServer extends ConsoleProgram
                 if (user.getOrderById(orderID) == null) {
                     return CISConstants.ORDER_INVALID_ERR;
                 }
-
                 user.removeOrderById(orderID);
                 return CISConstants.SUCCESS;
             }
         }
 
-        //GET ITEM ❌
-        //item available is wrong
+        //GET ITEM 🙆
         if (request.getCommand().equals(CISConstants.GET_ITEM)) {
             return getMenuItem(request);
         }
 
+        //GET MENU, this is for server
+        if (request.getCommand().equals(CISConstants.GET_MENU)) {
+            System.out.println("Get Menu REQUEST");
+            return getMenu(request);
+        }
+
         //GET USER 🙆
-        //incorect format
         if (request.getCommand().equals(CISConstants.GET_USER)) {
             userID = request.getParam(CISConstants.USER_ID_PARAM);
             if (userID == null) {
@@ -284,7 +312,6 @@ public class CIServer extends ConsoleProgram
         }
 
         //GET ORDER 🙆
-        //incorrect error
         if (request.getCommand().equals(CISConstants.GET_ORDER)) {
             return getOrder(request);
         }
