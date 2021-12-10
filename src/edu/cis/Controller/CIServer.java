@@ -86,8 +86,6 @@ public class CIServer extends ConsoleProgram
         //and we integrate them outside together.
     }
 
-
-
     //a function to create user
     private CISUser createUser(String userID, String name, String yearLevel) {
         CISUser currUser = null;
@@ -143,8 +141,8 @@ public class CIServer extends ConsoleProgram
         System.out.println("REQUEST MADE : " + cmd);
 
         //These are for testings
-        MenuItem hamburger = new MenuItem("Hamburger", "tasty" ,"10", "abcd0","lunch"  );
-        MenuItem frenchFries = new MenuItem("french fries", "tasty" ,"9", "efgh1","breakfast");
+        MenuItem hamburger = new MenuItem("Hamburger", "tasty", "10", "abcd0", "lunch");
+        MenuItem frenchFries = new MenuItem("french fries", "tasty", "9", "efgh1", "breakfast");
         menu.setEatriumItems(hamburger);
         menu.setEatriumItems(frenchFries);
 

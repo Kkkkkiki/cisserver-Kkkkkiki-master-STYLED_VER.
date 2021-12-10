@@ -87,10 +87,6 @@ public class MenuItem {
                 ", type='" + type + '\'' +
                 '}';
     }
-//
-//    public String toString2() {
-//        return name + "|" + description + "|" + price + "|" + id + "|" + amountAvailable + "|" + type + ";" ;
-//    }
 
     public String sealFields() {
         String[] pieces = {name, description, String.valueOf(price), String.valueOf(amountAvailable), type, id};
